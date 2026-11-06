@@ -4,6 +4,20 @@ Produce a contract risk report for the file named in the request
 (default: input/sample_contract.txt). Follow CLAUDE.md.
 ## Steps
 1. Read the contract file once using the Read tool.
+1b. Input validation (before launching any sub-agent): treat the file as NOT
+a readable contract if it is empty, or has fewer than 20 words, or contains no
+contract language (no party names, no "Agreement"/"Contract" wording, no
+numbered or headed clauses, no obligation words such as shall/must/agrees).
+If not readable: launch NO sub-agents and write output/risk_report.md
+(or the report file for the request) containing only:
+  # Contract Risk Report — <file name>
+  ## Risk Rating
+  **Not assessable** — input is not a readable contract (<one-line reason>).
+  Do not rate it Low; no clauses were analysed.
+  ## Run Info (input file · date · model · "no sub-agents run: input failed validation")
+  ---
+  GATE: FAIL (input not assessable — fail-safe; no P1 analysis was possible)
+Then stop. Never emit GATE: PASS for an unassessable input.
 2. In a single step, launch these three sub-agents IN PARALLEL.
 Pass each one the full contract text — they do not share your context:
 - clause-agent → P1/P2/P3 clause findings table
